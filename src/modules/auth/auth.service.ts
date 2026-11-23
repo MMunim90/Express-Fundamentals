@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import type { IAuth } from "./auth.interface";
+import jwt from "jsonwebtoken";
+import config from "../../config";
 
 const loginUserIntoDB = async (payload: IAuth) => {
   const { email, password } = payload;
@@ -12,7 +14,9 @@ const loginUserIntoDB = async (payload: IAuth) => {
     [email],
   );
 
-  //   console.log(user.rows[0]);
+  const currentUser = user.rows[0];
+
+  //   console.log(currentUser);
 
   // check if the user exists
   if (user.rowCount === 0) {
@@ -20,19 +24,34 @@ const loginUserIntoDB = async (payload: IAuth) => {
   }
 
   // check if the password match
-  const matchPassword = await bcrypt.compare(password, user.rows[0].password);
+  const matchPassword = await bcrypt.compare(password, currentUser.password);
 
   if (!matchPassword) {
     throw new Error("Invalid credentials.");
   }
 
   // check the user status
-  if (!user.rows[0].is_active) {
+  if (!currentUser.is_active) {
     throw new Error("Access Denied");
   }
-  //   console.log(user.rows[0].is_active);
+  //   console.log(currentUser.is_active);
 
   // if pass all then generate jwt token
+
+  const jwtPayload = {
+    id: currentUser.id,
+    name: currentUser.name,
+    email: currentUser.email,
+    status: currentUser.is_active,
+  };
+
+  const SECRET_KEY = config.secret_key;
+
+  const accessToken = jwt.sign(jwtPayload, SECRET_KEY, { expiresIn: "1d" });
+
+  delete currentUser.password;
+
+  return {accessToken, user: currentUser};
 };
 
 export const authService = {
