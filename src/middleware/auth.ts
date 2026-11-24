@@ -15,7 +15,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-//   2. Verify token
+  //   2. Verify token
   const decode = jwt.verify(token as string, config.secret_key) as JwtPayload;
 
   // console.log(decode);
@@ -27,23 +27,29 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     [decode.email],
   );
 
-//   3. Check if the user exists
-//   console.log(user.rows[0]);
-if(user.rowCount === 0){
+  //   3. Check if the user exists
+  //   console.log(user.rows[0]);
+  if (user.rowCount === 0) {
     res.status(404).json({
-        success: false,
-        message: "User not found.",
+      success: false,
+      message: "User not found.",
     });
-};
+  }
 
-// 4. Is the user status Active
-if(!user.rows[0].is_active){
+  // 4. Is the user status Active
+  if (!user.rows[0].is_active) {
     res.status(403).json({
-        success: false,
-        message: "Forbidden.",
+      success: false,
+      message: "Forbidden.",
     });
-};
+  }
 
+  // console.log(req); req : {body : "", user : ""}
+
+  req.user = decode;
+
+  console.log(req);
+  
   next();
 };
 
