@@ -47,12 +47,15 @@ const loginUserIntoDB = async (payload: IAuth) => {
   };
 
   const SECRET_KEY = config.secret_key;
+  const REFRESH_KEY = config.refresh_key;
 
-  const accessToken = jwt.sign(jwtPayload, SECRET_KEY, { expiresIn: "1d" });
+  const accessToken = jwt.sign(jwtPayload, SECRET_KEY, { expiresIn: "1h" });
+
+  const refreshToken = jwt.sign(jwtPayload, REFRESH_KEY, { expiresIn: "10d" });
 
   delete currentUser.password;
 
-  return {accessToken, user: currentUser};
+  return {accessToken, refreshToken, user: currentUser};
 };
 
 export const authService = {
