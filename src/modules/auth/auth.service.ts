@@ -43,6 +43,7 @@ const loginUserIntoDB = async (payload: IAuth) => {
     name: currentUser.name,
     email: currentUser.email,
     status: currentUser.is_active,
+    role: currentUser.role,
   };
 
   const SECRET_KEY = config.secret_key;
