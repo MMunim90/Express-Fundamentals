@@ -5,3 +5,11 @@ export const USER_ROLE = {
     agent: "agent",
     user: "user",
 } as const;
+
+export type TResponse <T> = {
+    statusCode: number;
+    success: boolean;
+    message: string;
+    data?: T;
+    error?: any;
+};
